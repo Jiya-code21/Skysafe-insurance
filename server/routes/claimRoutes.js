@@ -1,8 +1,26 @@
 const express = require("express");
 const router = express.Router();
 
-const { createClaim } = require("../controllers/claimController");
+const {
+  createClaim,
+  getClaims,
+  updateClaimStatus,
+  deleteClaim
+} = require("../controllers/claimController");
 
-router.post("/create", createClaim);
+const auth = require("../middleware/authMiddleware");
+const admin = require("../middleware/adminMiddleware");
+
+// ==============================
+// USER ROUTES
+// ==============================
+router.post("/", auth, createClaim);
+router.get("/", auth, getClaims);
+router.delete("/:id", auth, deleteClaim);
+
+// ==============================
+// ADMIN ROUTES
+// ==============================
+router.patch("/:id/status", auth, admin, updateClaimStatus);
 
 module.exports = router;
