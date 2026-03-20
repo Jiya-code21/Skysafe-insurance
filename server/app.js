@@ -13,14 +13,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/policy", policyRoutes);
-app.use("/api/claim", claimRoutes);
-
-app.get("/", (req, res) => {
-
-  res.send("Skysafe Insurance API running");
-
-});
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/policy", policyRoutes);
+app.use("/api/v1/claim", claimRoutes);
 
 module.exports = app;
