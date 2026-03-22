@@ -1,5 +1,7 @@
 // Admin middleware — pehle auth middleware chalega, phir yeh
-const adminMiddleware = (req, res, next) => {
+
+const adminMiddleware = async (req, res, next) => {
+  
   if (req.user && req.user.role === "admin") {
     next();
   } else {

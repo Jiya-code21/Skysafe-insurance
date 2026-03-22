@@ -51,9 +51,4 @@ userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// FIX: comparePassword method — used in authController.changePassword
-userSchema.methods.comparePassword = async function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
-
 module.exports = mongoose.model("User", userSchema);

@@ -12,6 +12,14 @@ const {
   getDashboard
 } = require("../controllers/adminController");
 
+const {
+  createAdmin,
+  adminLogin,
+  getAllUsers,
+  deactivateUser,
+  getDashboard
+} = require("../controllers/adminController");
+
 const auth = require("../middleware/authMiddleware");
 const adminOnly = require("../middleware/adminMiddleware");
 
