@@ -1,11 +1,21 @@
+// const express = require("express");
+// const router = express.Router();
+
+// const auth = require("../middleware/authMiddleware");
+// const admin = require("../middleware/adminMiddleware");
+
+// const { createAdmin } = require("../controllers/adminController");
+
+// router.post("/create-admin", auth, admin, createAdmin);
+
+// module.exports = router;
 const express = require("express");
-const router = express.Router();
-
-const auth = require("../middleware/authMiddleware");
-const admin = require("../middleware/adminMiddleware");
-
+const router  = express.Router();
+const auth    = require("../middleware/authMiddleware");
+const admin   = require("../middleware/adminMiddleware");
 const { createAdmin } = require("../controllers/adminController");
 
+// Only existing admins can create new admins
 router.post("/create-admin", auth, admin, createAdmin);
 
 module.exports = router;
