@@ -32,7 +32,6 @@ exports.register = async (req, res) => {
       name: name.trim(),
       email: email.toLowerCase().trim(),
       password: hashed
-      
     });
 
     await user.save();
