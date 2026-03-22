@@ -1,5 +1,17 @@
-const express = require("express");
-const router = express.Router();
+// const express = require("express");
+// const router = express.Router();
+
+// const { buyPolicy, getPolicies } = require("../controllers/policyController");
+// const auth = require("../middleware/authMiddleware");
+
+const {
+  getAllPolicies,
+  getSinglePolicy,
+  createPolicy,
+  updatePolicy,
+  deactivatePolicy,
+  adminGetAllPolicies
+} = require("../controllers/policyController");
 
 const {
   getAllPolicies,
