@@ -4,16 +4,25 @@
 // const { buyPolicy, getPolicies } = require("../controllers/policyController");
 // const auth = require("../middleware/authMiddleware");
 
-// router.post("/buy", auth, buyPolicy);
-// router.get("/", auth, getPolicies);
+const {
+  getAllPolicies,
+  getSinglePolicy,
+  createPolicy,
+  updatePolicy,
+  deactivatePolicy,
+  adminGetAllPolicies
+} = require("../controllers/policyController");
 
-// module.exports = router;
-const express = require("express");
-const router  = express.Router();
-const auth    = require("../middleware/authMiddleware");
-const { buyPolicy, getPolicies } = require("../controllers/policyController");
+const auth = require("../middleware/authMiddleware");
+const adminOnly = require("../middleware/adminMiddleware");
 
-router.post("/buy", auth, buyPolicy);
-router.get("/",     auth, getPolicies);
+router.get("/", getAllPolicies);
+router.get("/:id", getSinglePolicy);
+
+
+router.post("/", auth, adminOnly, createPolicy);
+router.patch("/:id", auth, adminOnly, updatePolicy);
+router.patch("/:id/deactivate", auth, adminOnly, deactivatePolicy);
+router.get("/admin/all", auth, adminOnly, adminGetAllPolicies);
 
 module.exports = router;

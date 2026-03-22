@@ -1,46 +1,42 @@
-// const jwt = require("jsonwebtoken");
-
-// const auth = (req, res, next) => {
-
-//   const authHeader = req.headers.authorization;
-
-//   if (!authHeader) {
-//     return res.status(401).json({ message: "No token" });
-//   }
-
-//   const token = authHeader.split(" ")[1];
-
-//   try {
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//     req.user = decoded;
-//     next();
-//   } catch {
-//     res.status(401).json({ message: "Invalid token" });
-//   }
-// };
-
-// module.exports = auth;
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
 const auth = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "No token provided" });
-  }
-
-  const token = authHeader.split(" ")[1];
-
   try {
+
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Access denied. No token provided." });
+    }
+
+    const token = authHeader.split(" ")[1];
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // Attach full user object so controllers can access user.name, user.email etc.
+
     const user = await User.findById(decoded.id).select("-password");
-    if (!user) return res.status(401).json({ message: "User not found" });
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+   
+    if (!user.isActive) {
+      return res.status(403).json({ message: "Your account has been deactivated" });
+    }
+
+    
     req.user = user;
     next();
-  } catch {
-    res.status(401).json({ message: "Invalid or expired token" });
+
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired. Please login again." });
+    }
+    if (error.name === "JsonWebTokenError") {
+      return res.status(401).json({ message: "Invalid token." });
+    }
+    res.status(500).json({ message: "Server error" });
   }
 };
 
