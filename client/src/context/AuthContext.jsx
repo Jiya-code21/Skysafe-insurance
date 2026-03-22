@@ -1,92 +1,157 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// import React, { createContext, useContext, useState, useEffect } from "react";
+// import { authAPI } from "../api/api.js";
 
-const AuthContext = createContext();
+// const AuthContext = createContext(null);
 
-export const useAuth = () => useContext(AuthContext);
+// export const AuthProvider = ({ children }) => {
+//   const [user, setUser] = useState(null);
+//   const [loading, setLoading] = useState(true);
+
+//   // On mount: fetch current user if token exists
+//   useEffect(() => {
+//     const token = localStorage.getItem("token");
+//     if (!token) {
+//       setLoading(false);
+//       return;
+//     }
+//     authAPI
+//       .getMe()
+//       .then((data) => {
+//         const u = data.user;
+//         setUser({
+//           ...u,
+//           initials: u.name
+//             ? u.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+//             : "U",
+//         });
+//       })
+//       .catch(() => {
+//         localStorage.removeItem("token");
+//       })
+//       .finally(() => setLoading(false));
+//   }, []);
+
+//   const login = async (email, password) => {
+//     const data = await authAPI.login({ email, password });
+//     localStorage.setItem("token", data.token);
+//     // Fetch full user profile
+//     const me = await authAPI.getMe();
+//     const u = me.user;
+//     setUser({
+//       ...u,
+//       initials: u.name
+//         ? u.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+//         : "U",
+//     });
+//     return data;
+//   };
+
+//   const register = async (name, email, password, location) => {
+//     const data = await authAPI.register({ name, email, password, location });
+//     return data;
+//   };
+
+//   const logout = () => {
+//     localStorage.removeItem("token");
+//     setUser(null);
+//   };
+
+//   const refreshUser = async () => {
+//     const me = await authAPI.getMe();
+//     const u = me.user;
+//     setUser({
+//       ...u,
+//       initials: u.name
+//         ? u.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+//         : "U",
+//     });
+//   };
+
+//   return (
+//     <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
+
+// export const useAuth = () => useContext(AuthContext);
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { authAPI } from "../api/api.js";
+
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // On mount: fetch current user if token exists
   useEffect(() => {
-    // Check local storage for existing session
-    const storedUser = localStorage.getItem('skysafe_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+    authAPI
+      .getMe()
+      .then((data) => {
+        const u = data.user;
+        setUser(buildUser(u));
+      })
+      .catch(() => {
+        localStorage.removeItem("token");
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  const login = (email, password) => {
-    // Mock login logic
-    const mockUser = {
-      id: "usr_12345",
-      name: "Alex Mercer",
-      email: email || "alex.mercer@example.com",
-      phone: "+1 (555) 123-4567",
-      initials: "AM",
-      role: "worker"
-    };
-    setUser(mockUser);
-    localStorage.setItem('skysafe_user', JSON.stringify(mockUser));
-    return true; // Simulate success
+  const buildUser = (u) => ({
+    ...u,
+    initials: u.name
+      ? u.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+      : "U",
+  });
+
+  const login = async (email, password) => {
+    const data = await authAPI.login({ email, password });
+    localStorage.setItem("token", data.token);
+    const me = await authAPI.getMe();
+    setUser(buildUser(me.user));
+    return data;
   };
 
-  const loginWithGoogle = () => {
-    // Mock Google SSO
-    const mockUser = {
-      id: "usr_google_789",
-      name: "Alex Mercer (Google)",
-      email: "alex.mercer@gmail.com",
-      phone: "+1 (555) 987-6543",
-      initials: "AM",
-      role: "worker"
-    };
-    setUser(mockUser);
-    localStorage.setItem('skysafe_user', JSON.stringify(mockUser));
-    return true;
+  const register = async (name, email, password, location) => {
+    const data = await authAPI.register({ name, email, password, location });
+    return data;
   };
 
   const logout = () => {
+    localStorage.removeItem("token");
     setUser(null);
-    localStorage.removeItem('skysafe_user');
   };
 
-  const updateProfile = (data) => {
-    if (!user) return false;
-    
-    // Update initials based on new name
-    let initials = user.initials;
-    if (data.name) {
-      const match = data.name.match(/\b(\w)/g);
-      initials = match ? match.slice(0, 2).join('').toUpperCase() : "U";
-    }
-
-    const updatedUser = { ...user, ...data, initials };
-    setUser(updatedUser);
-    localStorage.setItem('skysafe_user', JSON.stringify(updatedUser));
-    return true;
+  const refreshUser = async () => {
+    const me = await authAPI.getMe();
+    setUser(buildUser(me.user));
   };
 
-  const updatePassword = (newPassword) => {
-    // In a real app we'd call an API. Here we just mock success.
-    console.log("Password updated successfully.");
-    return true;
+  // FIX: updateProfile now calls API and refreshes user
+  const updateProfile = async (body) => {
+    await authAPI.updateProfile(body);
+    await refreshUser();
   };
 
-  const value = {
-    user,
-    loading,
-    login,
-    loginWithGoogle,
-    logout,
-    updateProfile,
-    updatePassword
+  // FIX: changePassword / updatePassword both point to same API
+  const changePassword = async (body) => {
+    await authAPI.changePassword(body);
   };
+  const updatePassword = changePassword; // alias used in Settings.jsx
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
+    <AuthContext.Provider
+      value={{ user, loading, login, register, logout, refreshUser, updateProfile, changePassword, updatePassword }}
+    >
+      {children}
     </AuthContext.Provider>
   );
 };
+
+export const useAuth = () => useContext(AuthContext);

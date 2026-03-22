@@ -52,6 +52,7 @@ exports.createClaim = async (req, res) => {
       claimAmount
     });
 
+    const claim = new Claim({ policyId, reason, payout, userId: req.user._id });
     await claim.save();
 
     res.status(201).json({
