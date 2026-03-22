@@ -10,19 +10,18 @@ const {
   getMe,
   changePassword,
   updateProfile
-} = require("../controllers/authController.js");
+} = require("../controllers/authController");
 
 const auth = require("../middleware/authMiddleware");
 
-// ✅ Public
+
 router.post("/register", register);
 router.post("/login", login);
 router.post("/forgot-password", forgotPassword);
 router.post("/verify-otp", verifyOtp);
 router.post("/reset-password", resetPassword);
 
-// ✅ Protected
-router.get("/me", auth,getMe);
+router.get("/me", auth, getMe);
 router.patch("/change-password", auth, changePassword);
 router.patch("/update-profile", auth, updateProfile);
 
