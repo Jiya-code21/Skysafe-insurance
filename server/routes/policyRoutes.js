@@ -1,8 +1,5 @@
-// const express = require("express");
-// const router = express.Router();
-
-// const { buyPolicy, getPolicies } = require("../controllers/policyController");
-// const auth = require("../middleware/authMiddleware");
+const express = require("express");
+const router = express.Router();
 
 const {
   getAllPolicies,
@@ -13,13 +10,11 @@ const {
   adminGetAllPolicies
 } = require("../controllers/policyController");
 
-
 const auth = require("../middleware/authMiddleware");
 const adminOnly = require("../middleware/adminMiddleware");
 
 router.get("/", getAllPolicies);
 router.get("/:id", getSinglePolicy);
-
 
 router.post("/", auth, adminOnly, createPolicy);
 router.patch("/:id", auth, adminOnly, updatePolicy);
