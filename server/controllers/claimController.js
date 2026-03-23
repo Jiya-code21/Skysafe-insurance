@@ -17,7 +17,6 @@ exports.createClaim = async (req, res) => {
       return res.status(404).json({ message: "Subscription not found" });
     }
 
-
     if (subscription.user.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Access denied" });
     }
@@ -26,7 +25,6 @@ exports.createClaim = async (req, res) => {
       return res.status(400).json({ message: "Subscription is not active" });
     }
 
-
     const duplicate = await Claim.findOne({
       subscription: subscriptionId,
       triggerType,
@@ -34,16 +32,20 @@ exports.createClaim = async (req, res) => {
     });
 
     if (duplicate) {
-      return res.status(400).json({ message: "Claim already exists for this trigger" });
+      return res.status(400).json({
+        message: "Claim already exists for this trigger"
+      });
     }
 
     const maxCoverage = subscription.policy.coverageAmount;
+
     if (claimAmount > maxCoverage) {
       return res.status(400).json({
         message: `Claim amount cannot exceed coverage limit of ₹${maxCoverage}`
       });
     }
 
+    // ✅ Correct single claim creation
     const claim = new Claim({
       user: req.user._id,
       subscription: subscriptionId,
@@ -52,7 +54,6 @@ exports.createClaim = async (req, res) => {
       claimAmount
     });
 
-    const claim = new Claim({ policyId, reason, payout, userId: req.user._id });
     await claim.save();
 
     res.status(201).json({
@@ -124,7 +125,7 @@ exports.getSingleClaim = async (req, res) => {
 // ================= ADMIN — GET ALL CLAIMS =================
 exports.adminGetAllClaims = async (req, res) => {
   try {
-    const { status } = req.query;  // ?status=pending se filter kar sako
+    const { status } = req.query;
     const filter = status ? { status } : {};
 
     const claims = await Claim.find(filter)
@@ -145,7 +146,6 @@ exports.adminGetAllClaims = async (req, res) => {
 };
 
 // ================= ADMIN — UPDATE CLAIM STATUS =================
-
 exports.updateClaimStatus = async (req, res) => {
   try {
     const { status, adminNote } = req.body;
@@ -155,7 +155,9 @@ exports.updateClaimStatus = async (req, res) => {
     }
 
     if (!["approved", "rejected"].includes(status)) {
-      return res.status(400).json({ message: "Status must be 'approved' or 'rejected'" });
+      return res.status(400).json({
+        message: "Status must be 'approved' or 'rejected'"
+      });
     }
 
     const claim = await Claim.findById(req.params.id);
@@ -165,7 +167,9 @@ exports.updateClaimStatus = async (req, res) => {
     }
 
     if (claim.status !== "pending") {
-      return res.status(400).json({ message: "Only pending claims can be updated" });
+      return res.status(400).json({
+        message: "Only pending claims can be updated"
+      });
     }
 
     claim.status = status;
