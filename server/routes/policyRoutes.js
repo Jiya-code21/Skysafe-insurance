@@ -13,14 +13,6 @@ const {
   adminGetAllPolicies
 } = require("../controllers/policyController");
 
-const {
-  getAllPolicies,
-  getSinglePolicy,
-  createPolicy,
-  updatePolicy,
-  deactivatePolicy,
-  adminGetAllPolicies
-} = require("../controllers/policyController");
 
 const auth = require("../middleware/authMiddleware");
 const adminOnly = require("../middleware/adminMiddleware");
