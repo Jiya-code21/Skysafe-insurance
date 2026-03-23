@@ -41,7 +41,7 @@ const {
   updateProfile
 } = require("../controllers/authController");
 
-const auth = require("../middleware/authMiddleware");
+
 
 
 router.post("/register", register);
