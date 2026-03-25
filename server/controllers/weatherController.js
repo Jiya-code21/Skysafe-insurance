@@ -24,12 +24,16 @@ const axios = require("axios");
 exports.checkRain = async (req, res) => {
   try {
     const city = req.params.city;
+    const apiKey = process.env.WEATHER_API_KEY;
 
-    if (!process.env.WEATHER_API_KEY) {
-      return res.status(500).json({ message: "Weather API key not configured" });
+    if (!apiKey || apiKey === "your_openweather_api_key") {
+      return res.json({
+        message: "Weather monitoring is not configured right now",
+        monitoringUnavailable: true
+      });
     }
 
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${process.env.WEATHER_API_KEY}`;
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}`;
     const response = await axios.get(url);
     const weather  = response.data.weather[0].main;
 
@@ -39,10 +43,15 @@ exports.checkRain = async (req, res) => {
 
     res.json({ message: "Weather normal", weather });
   } catch (error) {
-    // FIX: was crashing without try/catch
     if (error.response?.status === 404) {
       return res.status(404).json({ message: "City not found" });
     }
-    res.status(500).json({ message: error.message });
+    if (error.response?.status === 401) {
+      return res.json({
+        message: "Weather monitoring is unavailable right now",
+        monitoringUnavailable: true
+      });
+    }
+    res.status(500).json({ message: "Unable to fetch weather data right now" });
   }
 };
