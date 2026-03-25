@@ -14,11 +14,11 @@ const auth = require("../middleware/authMiddleware");
 const adminOnly = require("../middleware/adminMiddleware");
 
 router.get("/", getAllPolicies);
+router.get("/admin/all", auth, adminOnly, adminGetAllPolicies);
 router.get("/:id", getSinglePolicy);
 
 router.post("/", auth, adminOnly, createPolicy);
 router.patch("/:id", auth, adminOnly, updatePolicy);
 router.patch("/:id/deactivate", auth, adminOnly, deactivatePolicy);
-router.get("/admin/all", auth, adminOnly, adminGetAllPolicies);
 
 module.exports = router;

@@ -6,11 +6,11 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, location } = req.body;
 
     // Basic validation
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Name, email and password are required" });
+    if (!name || !email || !password || !location) {
+      return res.status(400).json({ message: "Name, email, password and location are required" });
     }
 
     if (password.length < 6) {
@@ -20,8 +20,7 @@ exports.register = async (req, res) => {
     // Check existing user
     const userExist = await User.findOne({ email: email.toLowerCase() });
     if (userExist) {
-
-      return res.status(400).json({ message: "Registration failed. Please try again." });
+      return res.status(409).json({ message: "User already exists" });
     }
 
     // Hash password
@@ -31,7 +30,8 @@ exports.register = async (req, res) => {
     const user = new User({
       name: name.trim(),
       email: email.toLowerCase().trim(),
-      password: hashed
+      password: hashed,
+      location: location.trim()
     });
 
     await user.save();
@@ -89,7 +89,8 @@ exports.login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        location: user.location
       }
     });
 
@@ -251,11 +252,12 @@ exports.changePassword = async (req, res) => {
 // ================= UPDATE PROFILE =================
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, location } = req.body;
 
     const updateData = {};
     if (name) updateData.name = name.trim();
     if (email) updateData.email = email.toLowerCase().trim();
+    if (location !== undefined) updateData.location = location.trim();
 
     const updated = await User.findByIdAndUpdate(
       req.user._id,

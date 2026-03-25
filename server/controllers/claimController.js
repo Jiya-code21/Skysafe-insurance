@@ -78,7 +78,14 @@ exports.createClaim = async (req, res) => {
 exports.getMyClaims = async (req, res) => {
   try {
     const claims = await Claim.find({ user: req.user._id })
-      .populate("subscription", "status amountPaid")
+      .populate({
+        path: "subscription",
+        select: "status amountPaid policy",
+        populate: {
+          path: "policy",
+          select: "title price duration coverageAmount planType"
+        }
+      })
       .sort({ createdAt: -1 });
 
     res.json({
@@ -98,7 +105,13 @@ exports.getSingleClaim = async (req, res) => {
   try {
     const claim = await Claim.findById(req.params.id)
       .populate("user", "name email")
-      .populate("subscription");
+      .populate({
+        path: "subscription",
+        populate: {
+          path: "policy",
+          select: "title price duration coverageAmount planType"
+        }
+      });
 
     if (!claim) {
       return res.status(404).json({ message: "Claim not found" });
@@ -130,7 +143,14 @@ exports.adminGetAllClaims = async (req, res) => {
 
     const claims = await Claim.find(filter)
       .populate("user", "name email")
-      .populate("subscription", "amountPaid status")
+      .populate({
+        path: "subscription",
+        select: "amountPaid status policy",
+        populate: {
+          path: "policy",
+          select: "title price duration coverageAmount planType"
+        }
+      })
       .sort({ createdAt: -1 });
 
     res.json({
@@ -192,6 +212,34 @@ exports.updateClaimStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid claim ID" });
     }
     console.error("Update claim status error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.deleteClaim = async (req, res) => {
+  try {
+    const claim = await Claim.findById(req.params.id);
+
+    if (!claim) {
+      return res.status(404).json({ message: "Claim not found" });
+    }
+
+    if (claim.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    if (claim.status !== "pending") {
+      return res.status(400).json({ message: "Only pending claims can be deleted" });
+    }
+
+    await claim.deleteOne();
+
+    res.json({ message: "Claim deleted successfully" });
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(400).json({ message: "Invalid claim ID" });
+    }
+    console.error("Delete claim error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
