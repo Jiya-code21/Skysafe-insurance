@@ -22,18 +22,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [6, "Password must be at least 6 characters"],
-      select: false   
-    },
-    location: {
-      type: String,
-      trim: true,
-      maxlength: [80, "Location is too long"]
+      select: false
     },
     role: {
       type: String,
       enum: ["user", "admin"],
       default: "user"
-     
     },
     isActive: {
       type: Boolean,
@@ -50,7 +44,6 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
