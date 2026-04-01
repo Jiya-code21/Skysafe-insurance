@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 // ================= REGISTER =================
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, location } = req.body;
+    const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Name, email and password are required" });
@@ -165,8 +165,7 @@ exports.login = async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
-        location: user.location
+        role: user.role
       }
     });
 
@@ -315,12 +314,11 @@ exports.changePassword = async (req, res) => {
 // ================= UPDATE PROFILE =================
 exports.updateProfile = async (req, res) => {
   try {
-    const { name, email, location } = req.body;
+    const { name, email } = req.body;
 
     const updateData = {};
     if (name) updateData.name = name.trim();
     if (email) updateData.email = email.toLowerCase().trim();
-    if (location !== undefined) updateData.location = location.trim();
 
     const updated = await User.findByIdAndUpdate(
       req.user._id,
