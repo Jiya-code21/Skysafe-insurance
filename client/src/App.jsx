@@ -1,50 +1,3 @@
-// import React from "react";
-// import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-// import { AuthProvider } from "./context/AuthContext";
-
-// // Layout & Guards
-// import Layout from "./components/Layout";
-// import ProtectedRoute from "./components/ProtectedRoute";
-
-// // Auth Pages
-// import Login from "./pages/Login";
-// import Register from "./pages/Register";
-// import forgotPassword from "./pages/forgotPassword";
-
-// // App Pages
-// import Dashboard from "./pages/Dashboard";
-// import Claims from "./pages/Claims";
-
-// function App() {
-//   return (
-//     <AuthProvider>
-//       <BrowserRouter>
-//         <Routes>
-
-//           {/* Public Routes */}
-//           <Route path="/login" element={<Login />} />
-//           <Route path="/register" element={<Register />} />
-//           <Route path="/forgot-password" element={<forgotPassword />} />
-
-//           {/* Protected Routes */}
-//           <Route element={<ProtectedRoute />}>
-//             <Route element={<Layout />}>
-//               <Route path="/dashboard" element={<Dashboard />} />
-//               <Route path="/claims" element={<Claims />} />
-//             </Route>
-//           </Route>
-
-//           {/* Fallback */}
-//           <Route path="*" element={<Navigate to="/dashboard" replace />} />
-
-//         </Routes>
-//       </BrowserRouter>
-//     </AuthProvider>
-//   );
-// }
-
-// export default App;
-
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
@@ -61,6 +14,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/forgotPassword";
 import Onboarding from "./pages/Onboarding";
+import VerifyOTP from "./pages/VerifyOTP";
 
 // App Pages
 import Dashboard from "./pages/Dashboard";
@@ -82,6 +36,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/verify-otp" element={<VerifyOTP />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/onboarding" element={<Onboarding />} />
 
