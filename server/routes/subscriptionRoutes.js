@@ -14,10 +14,8 @@ const adminOnly = require("../middleware/adminMiddleware");
 
 router.post("/", auth, buySubscription);
 router.get("/", auth, getMySubscriptions);
+router.get("/admin/all", auth, adminOnly, adminGetAllSubscriptions);
 router.get("/:id", auth, getSingleSubscription);
 router.post("/:id/cancel", auth, cancelSubscription);
-
-
-router.get("/admin/all", auth, adminOnly, adminGetAllSubscriptions);
 
 module.exports = router;

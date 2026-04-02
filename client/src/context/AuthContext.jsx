@@ -8,6 +8,13 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const buildUser = (u) => ({
+    ...u,
+    initials: u.name
+      ? u.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+      : "U",
+  });
+
   // On mount: fetch current user if token exists
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -26,13 +33,6 @@ export const AuthProvider = ({ children }) => {
       })
       .finally(() => setLoading(false));
   }, []);
-
-  const buildUser = (u) => ({
-    ...u,
-    initials: u.name
-      ? u.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-      : "U",
-  });
 
   const login = async (email, password) => {
     const data = await authAPI.login({ email, password });

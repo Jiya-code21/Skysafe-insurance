@@ -5,6 +5,7 @@ import {
   Loader2, CheckCircle2, Zap, CloudRain, TrendingUp
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { getAuthErrorMessage, validateLoginForm } from "../utils/authValidation";
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
@@ -127,20 +128,38 @@ export default function Login() {
   const [form, setForm]         = useState({ email: "", password: "" });
   const [showPass, setShowPass] = useState(false);
   const [error, setError]       = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading]   = useState(false);
 
-  const handleChange = (e) => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((p) => ({ ...p, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+    setError("");
+  };
+
+  const getInputClass = (field) =>
+    `input-field w-full px-4 py-3.5 rounded-xl border bg-slate-50 text-slate-800 text-sm placeholder-slate-400 focus:outline-none ${
+      fieldErrors[field] ? "border-red-300 bg-red-50/60" : "border-slate-200"
+    }`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!form.email || !form.password) { setError("Please fill in all fields."); return; }
+    const errors = validateLoginForm(form);
+
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    setFieldErrors({});
     setLoading(true);
     try {
       await login(form.email, form.password);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Login failed. Please try again.");
+      setError(getAuthErrorMessage(err, "Login failed. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -277,8 +296,11 @@ export default function Login() {
                       value={form.email}
                       onChange={handleChange}
                       placeholder="you@example.com"
-                      className="input-field w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm placeholder-slate-400 focus:outline-none"
+                      className={getInputClass("email")}
                     />
+                    {fieldErrors.email && (
+                      <p className="mt-2 text-xs font-medium text-red-600">{fieldErrors.email}</p>
+                    )}
                   </div>
 
                   {/* Password */}
@@ -296,7 +318,7 @@ export default function Login() {
                         value={form.password}
                         onChange={handleChange}
                         placeholder="Enter your password"
-                        className="input-field w-full px-4 py-3.5 pr-12 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-sm placeholder-slate-400 focus:outline-none"
+                        className={`${getInputClass("password")} pr-12`}
                       />
                       <button
                         type="button"
@@ -306,6 +328,9 @@ export default function Login() {
                         {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
+                    {fieldErrors.password && (
+                      <p className="mt-2 text-xs font-medium text-red-600">{fieldErrors.password}</p>
+                    )}
                   </div>
 
                   {/* Submit */}
