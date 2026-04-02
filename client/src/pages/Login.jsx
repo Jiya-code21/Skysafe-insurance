@@ -171,9 +171,7 @@ export default function Login() {
           <div className="relative z-10 max-w-sm w-full">
             {/* Logo */}
             <div className="anim-left flex items-center gap-3 mb-14">
-              <div className="pulse-logo w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-sm border border-white/30 shadow-xl">
-                <Shield size={24} className="text-white" />
-              </div>
+              <img src="/logo.png" alt="SkySafe" className="pulse-logo w-12 h-12 object-contain rounded-2xl shadow-xl" />
               <span className="font-sora text-2xl font-bold text-white">
                 Sky<span className="text-blue-200">Safe</span>
               </span>
@@ -237,9 +235,7 @@ export default function Login() {
 
             {/* Mobile logo */}
             <div className="anim-up lg:hidden flex items-center gap-2.5 mb-8">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-200">
-                <Shield size={20} className="text-white" />
-              </div>
+              <img src="/logo.png" alt="SkySafe" className="w-10 h-10 object-contain rounded-xl" />
               <span className="font-sora text-xl font-bold text-slate-800">
                 Sky<span className="text-blue-600">Safe</span>
               </span>
