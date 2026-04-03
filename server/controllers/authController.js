@@ -2,6 +2,7 @@ const User = require("../models/User");
 const PendingUser = require("../models/Pendinguser.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { sendOTPEmail, sendWelcomeEmail,sendForgotPasswordEmail} = require("../services/emailService.js");
 
 // ================= REGISTER =================
 exports.register = async (req, res) => {
