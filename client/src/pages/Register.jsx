@@ -133,10 +133,10 @@ const getStrength = (password) => {
 };
 
 const perks = [
-  { icon: Zap, text: "Instant payouts under 2 min", color: "bg-yellow-400/20", ic: "text-yellow-400" },
-  { icon: Shield, text: "Up to Rs 8,000 weekly protection", color: "bg-blue-400/20", ic: "text-blue-300" },
-  { icon: Users, text: "2,400+ workers already joined", color: "bg-sky-400/20", ic: "text-sky-300" },
-  { icon: Star, text: "4.9 rated by gig workers", color: "bg-indigo-400/20", ic: "text-indigo-300" },
+  { icon: Zap,      text: "Instant payouts under 2 min",    color: "bg-yellow-400/20", ic: "text-yellow-400" },
+  { icon: Shield,   text: "Up to â‚¹8,000 weekly protection", color: "bg-blue-400/20",   ic: "text-blue-300" },
+  { icon: Users,    text: "2,400+ workers already joined",  color: "bg-sky-400/20",    ic: "text-sky-300" },
+  { icon: Star,     text: "4.9â˜… rated by gig workers",      color: "bg-indigo-400/20", ic: "text-indigo-300" },
 ];
 
 export default function Register() {
@@ -186,8 +186,8 @@ export default function Register() {
 
     try {
       await register(form.name, form.email, form.password, form.location);
-      setSuccess("Account created successfully. Redirecting to login...");
-      setTimeout(() => navigate("/login"), 1800);
+setSuccess("Account created! Redirecting to verify your email…");
+setTimeout(() => navigate("/verify-otp", { state: { email: form.email } }), 1800);
     } catch (err) {
       setError(getAuthErrorMessage(err, "Registration failed. Try again."));
     } finally {
@@ -199,6 +199,8 @@ export default function Register() {
     <>
       <style>{styles}</style>
       <div className="reg-root min-h-screen flex bg-gradient-to-br from-sky-50 via-white to-blue-50 overflow-hidden">
+
+        {/* â•â• LEFT PANEL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div className="hidden lg:flex lg:w-[48%] relative flex-col items-center justify-center p-12 overflow-hidden bg-gradient-to-br from-indigo-700 via-blue-600 to-sky-600">
           <div className="blob-r absolute top-16 left-8 w-72 h-72 bg-white/10 rounded-full blur-2xl" />
           <div className="blob-r2 absolute bottom-8 right-4 w-80 h-80 bg-indigo-400/20 rounded-full blur-3xl" />
@@ -213,9 +215,7 @@ export default function Register() {
 
           <div className="relative z-10 max-w-sm w-full">
             <div className="anim-l flex items-center gap-3 mb-12">
-              <div className="pulse-logo w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center border border-white/30 shadow-xl backdrop-blur-sm">
-                <Shield size={24} className="text-white" />
-              </div>
+              <img src="/logo.png" alt="SkySafe" className="pulse-logo w-16 h-16 object-contain drop-shadow-xl" />
               <span className="font-sora text-2xl font-bold text-white">
                 Sky<span className="text-blue-200">Safe</span>
               </span>
@@ -223,11 +223,9 @@ export default function Register() {
 
             <div className="anim-l mb-10">
               <h2 className="font-sora text-4xl font-extrabold text-white leading-[1.15] mb-4">
-                Join 2,400+
-                <br />
-                <span className="text-blue-200">gig workers</span>
-                <br />
-                earning fearlessly.
+                Join 2,400+<br />
+                <span className="text-blue-200">gig workers</span><br />
+                earning fearlessly. âš¡
               </h2>
               <p className="text-blue-100/75 text-sm leading-relaxed">
                 Create your free account in 2 minutes and start protecting your weekly income today.
@@ -261,15 +259,14 @@ export default function Register() {
           </div>
         </div>
 
+        {/* â•â• RIGHT PANEL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div className="flex-1 flex items-center justify-center p-5 relative overflow-y-auto">
           <div className="fixed top-0 left-0 w-80 h-80 bg-sky-100 rounded-full blur-[100px] opacity-50 pointer-events-none" />
           <div className="fixed bottom-0 right-0 w-72 h-72 bg-blue-100 rounded-full blur-[100px] opacity-40 pointer-events-none" />
 
           <div className="anim-r w-full max-w-md relative z-10 py-6">
             <div className="anim-0 lg:hidden flex items-center gap-2.5 mb-7">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-200">
-                <Shield size={20} className="text-white" />
-              </div>
+              <img src="/logo.png" alt="SkySafe" className="w-12 h-12 object-contain" />
               <span className="font-sora text-xl font-bold text-slate-800">
                 Sky<span className="text-blue-600">Safe</span>
               </span>
@@ -285,10 +282,7 @@ export default function Register() {
                   </h1>
                   <p className="text-sm text-slate-500">
                     Already have an account?{" "}
-                    <Link
-                      to="/login"
-                      className="text-blue-600 font-bold hover:text-blue-700 transition-colors hover:underline underline-offset-2"
-                    >
+                    <Link to="/login" className="text-blue-600 font-bold hover:text-blue-700 transition-colors hover:underline underline-offset-2">
                       Sign in
                     </Link>
                   </p>
@@ -315,12 +309,9 @@ export default function Register() {
                         Full Name
                       </label>
                       <input
-                        type="text"
-                        name="name"
-                        value={form.name}
-                        onChange={handleChange}
-                        placeholder="Rahul Sharma"
-                        className={`${getInputClass("name")} px-4 py-3`}
+                        type="text" name="name" value={form.name} onChange={handleChange}
+                        placeholder="Enter Name"
+                        className="input-f w-full px-4 py-3 rounded-xl bg-slate-50 text-slate-800 text-sm placeholder-slate-400"
                       />
                       {fieldErrors.name && (
                         <p className="mt-2 text-xs font-medium text-red-600">{fieldErrors.name}</p>
@@ -337,12 +328,9 @@ export default function Register() {
                           className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
                         />
                         <input
-                          type="text"
-                          name="location"
-                          value={form.location}
-                          onChange={handleChange}
-                          placeholder="Mumbai"
-                          className={`${getInputClass("location")} pl-8 pr-3 py-3`}
+                          type="text" name="location" value={form.location} onChange={handleChange}
+                          placeholder="Enter City"
+                          className="input-f w-full pl-8 pr-3 py-3 rounded-xl bg-slate-50 text-slate-800 text-sm placeholder-slate-400"
                         />
                       </div>
                       {fieldErrors.location && (
@@ -445,18 +433,10 @@ export default function Register() {
                       disabled={loading}
                       className="btn-reg w-full flex items-center justify-center gap-2.5 bg-blue-600 disabled:bg-blue-400 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-200 text-sm"
                     >
-                      {loading ? (
-                        <>
-                          <Loader2 size={17} className="animate-spin" />
-                          Creating account...
-                        </>
-                      ) : (
-                        <>
-                          <Shield size={17} />
-                          Create My Free Account
-                          <ArrowRight size={17} />
-                        </>
-                      )}
+                      {loading
+                        ? <><Loader2 size={17} className="animate-spin"/> Creating account¦</>
+                        : <><Shield size={17}/> Create My Free Account <ArrowRight size={17}/></>
+                      }
                     </button>
                   </div>
                 </form>
