@@ -120,23 +120,20 @@ const getStrength = (password) => {
   if (!password) {
     return { label: "", color: "bg-slate-200", pct: "0%", textColor: "text-slate-400" };
   }
-
   if (password.length < 6) {
     return { label: "Weak", color: "bg-red-400", pct: "30%", textColor: "text-red-500" };
   }
-
   if (password.length < 10) {
     return { label: "Fair", color: "bg-amber-400", pct: "65%", textColor: "text-amber-500" };
   }
-
   return { label: "Strong", color: "bg-emerald-500", pct: "100%", textColor: "text-emerald-600" };
 };
 
 const perks = [
-  { icon: Zap,      text: "Instant payouts under 2 min",    color: "bg-yellow-400/20", ic: "text-yellow-400" },
-  { icon: Shield,   text: "Up to â‚¹8,000 weekly protection", color: "bg-blue-400/20",   ic: "text-blue-300" },
-  { icon: Users,    text: "2,400+ workers already joined",  color: "bg-sky-400/20",    ic: "text-sky-300" },
-  { icon: Star,     text: "4.9â˜… rated by gig workers",      color: "bg-indigo-400/20", ic: "text-indigo-300" },
+  { icon: Zap, text: "Instant payouts under 2 min", color: "bg-yellow-400/20", ic: "text-yellow-400" },
+  { icon: Shield, text: "Up to Rs 8,000 weekly protection", color: "bg-blue-400/20", ic: "text-blue-300" },
+  { icon: Users, text: "2,400+ workers already joined", color: "bg-sky-400/20", ic: "text-sky-300" },
+  { icon: Star, text: "4.9 rated by gig workers", color: "bg-indigo-400/20", ic: "text-indigo-300" },
 ];
 
 export default function Register() {
@@ -186,8 +183,10 @@ export default function Register() {
 
     try {
       await register(form.name, form.email, form.password, form.location);
-setSuccess("Account created! Redirecting to verify your email…");
-setTimeout(() => navigate("/verify-otp", { state: { email: form.email } }), 1800);
+      setSuccess("OTP sent to your email! Redirecting...");
+      setTimeout(() => navigate("/verify-otp", {
+        state: { email: form.email }
+      }), 1800);
     } catch (err) {
       setError(getAuthErrorMessage(err, "Registration failed. Try again."));
     } finally {
@@ -199,8 +198,6 @@ setTimeout(() => navigate("/verify-otp", { state: { email: form.email } }), 1800
     <>
       <style>{styles}</style>
       <div className="reg-root min-h-screen flex bg-gradient-to-br from-sky-50 via-white to-blue-50 overflow-hidden">
-
-        {/* â•â• LEFT PANEL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div className="hidden lg:flex lg:w-[48%] relative flex-col items-center justify-center p-12 overflow-hidden bg-gradient-to-br from-indigo-700 via-blue-600 to-sky-600">
           <div className="blob-r absolute top-16 left-8 w-72 h-72 bg-white/10 rounded-full blur-2xl" />
           <div className="blob-r2 absolute bottom-8 right-4 w-80 h-80 bg-indigo-400/20 rounded-full blur-3xl" />
@@ -223,9 +220,11 @@ setTimeout(() => navigate("/verify-otp", { state: { email: form.email } }), 1800
 
             <div className="anim-l mb-10">
               <h2 className="font-sora text-4xl font-extrabold text-white leading-[1.15] mb-4">
-                Join 2,400+<br />
-                <span className="text-blue-200">gig workers</span><br />
-                earning fearlessly. âš¡
+                Join 2,400+
+                <br />
+                <span className="text-blue-200">gig workers</span>
+                <br />
+                earning fearlessly.
               </h2>
               <p className="text-blue-100/75 text-sm leading-relaxed">
                 Create your free account in 2 minutes and start protecting your weekly income today.
@@ -259,7 +258,6 @@ setTimeout(() => navigate("/verify-otp", { state: { email: form.email } }), 1800
           </div>
         </div>
 
-        {/* â•â• RIGHT PANEL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
         <div className="flex-1 flex items-center justify-center p-5 relative overflow-y-auto">
           <div className="fixed top-0 left-0 w-80 h-80 bg-sky-100 rounded-full blur-[100px] opacity-50 pointer-events-none" />
           <div className="fixed bottom-0 right-0 w-72 h-72 bg-blue-100 rounded-full blur-[100px] opacity-40 pointer-events-none" />
@@ -282,7 +280,10 @@ setTimeout(() => navigate("/verify-otp", { state: { email: form.email } }), 1800
                   </h1>
                   <p className="text-sm text-slate-500">
                     Already have an account?{" "}
-                    <Link to="/login" className="text-blue-600 font-bold hover:text-blue-700 transition-colors hover:underline underline-offset-2">
+                    <Link
+                      to="/login"
+                      className="text-blue-600 font-bold hover:text-blue-700 transition-colors hover:underline underline-offset-2"
+                    >
                       Sign in
                     </Link>
                   </p>
@@ -309,9 +310,12 @@ setTimeout(() => navigate("/verify-otp", { state: { email: form.email } }), 1800
                         Full Name
                       </label>
                       <input
-                        type="text" name="name" value={form.name} onChange={handleChange}
-                        placeholder="Enter Name"
-                        className="input-f w-full px-4 py-3 rounded-xl bg-slate-50 text-slate-800 text-sm placeholder-slate-400"
+                        type="text"
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        placeholder="Rahul Sharma"
+                        className={`${getInputClass("name")} px-4 py-3`}
                       />
                       {fieldErrors.name && (
                         <p className="mt-2 text-xs font-medium text-red-600">{fieldErrors.name}</p>
@@ -328,9 +332,12 @@ setTimeout(() => navigate("/verify-otp", { state: { email: form.email } }), 1800
                           className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
                         />
                         <input
-                          type="text" name="location" value={form.location} onChange={handleChange}
-                          placeholder="Enter City"
-                          className="input-f w-full pl-8 pr-3 py-3 rounded-xl bg-slate-50 text-slate-800 text-sm placeholder-slate-400"
+                          type="text"
+                          name="location"
+                          value={form.location}
+                          onChange={handleChange}
+                          placeholder="Mumbai"
+                          className={`${getInputClass("location")} pl-8 pr-3 py-3`}
                         />
                       </div>
                       {fieldErrors.location && (
@@ -433,10 +440,18 @@ setTimeout(() => navigate("/verify-otp", { state: { email: form.email } }), 1800
                       disabled={loading}
                       className="btn-reg w-full flex items-center justify-center gap-2.5 bg-blue-600 disabled:bg-blue-400 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-200 text-sm"
                     >
-                      {loading
-                        ? <><Loader2 size={17} className="animate-spin"/> Creating account¦</>
-                        : <><Shield size={17}/> Create My Free Account <ArrowRight size={17}/></>
-                      }
+                      {loading ? (
+                        <>
+                          <Loader2 size={17} className="animate-spin" />
+                          Creating account...
+                        </>
+                      ) : (
+                        <>
+                          <Shield size={17} />
+                          Create My Free Account
+                          <ArrowRight size={17} />
+                        </>
+                      )}
                     </button>
                   </div>
                 </form>

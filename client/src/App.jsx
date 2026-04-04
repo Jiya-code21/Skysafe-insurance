@@ -1,29 +1,37 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import { AppProvider } from "./context/AppContext";
-import { ThemeProvider } from "./context/ThemeContext";
+import { AuthProvider } from "../src/context/AuthContext";
+import { AppProvider } from "../src/context/AppContext";
+import { ThemeProvider } from "../src/context/ThemeContext";
 
 // Layout & Guards
-import Layout from "./components/Layout";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "../src/components/Layout";
+import ProtectedRoute from "../src/components/ProtectedRoute";
+import AdminRoute from "../src/components/AdminRoute";
+import AdminLayout from "../src/components/AdminLayout";
 
 // Auth Pages
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/forgotPassword";
-import Onboarding from "./pages/Onboarding";
-import VerifyOTP from "./pages/VerifyOTP";
+import Home from "../src/pages/Home";
+import Login from "../src/pages/Login";
+import Register from "../src/pages/Register";
+import ForgotPassword from "../src/pages/forgotPassword";
+import Onboarding from "../src/pages/Onboarding";
+import VerifyOtp from "../src/pages/VerifyOtp";
 
-// App Pages
-import Dashboard from "./pages/Dashboard";
-import Claims from "./pages/Claims";
-import Analytics from "./pages/Analytics";
-import Settings from "./pages/Settings";
-import MyPolicies from "./pages/MyPolicies";
-import BuyPolicy from "./pages/BuyPolicy";
-import PricingCalculator from "./pages/PricingCalculator";
+// User Pages
+import Dashboard from "../src/pages/Dashboard";
+import Claims from "../src/pages/Claims";
+import Analytics from "../src/pages/Analytics";
+import Settings from "../src/pages/Settings";
+import MyPolicies from "../src/pages/MyPolicies";
+import BuyPolicy from "../src/pages/BuyPolicy";
+import PricingCalculator from "../src/pages/PricingCalculator";
+
+// Admin Pages
+import AdminDashboard from "../src/pages/AdminDashboard";
+import AdminClaims from "../src/pages/AdminClaims";
+import AdminUsers from "../src/pages/AdminUsers";
+import AdminPolicies from "../src/pages/AdminPolicies";
 
 function App() {
   return (
@@ -39,8 +47,9 @@ function App() {
               <Route path="/verify-otp" element={<VerifyOTP />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/verify-otp" element={<VerifyOtp />} />
 
-              {/* Protected Routes */}
+              {/* User Protected Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route element={<Layout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
@@ -53,8 +62,18 @@ function App() {
                 </Route>
               </Route>
 
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              {/* Admin Protected Routes */}
+              <Route element={<AdminRoute />}>
+                <Route element={<AdminLayout />}>
+                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                  <Route path="/admin/claims" element={<AdminClaims />} />
+                  <Route path="/admin/users" element={<AdminUsers />} />
+                  <Route path="/admin/policies" element={<AdminPolicies />} />
+                </Route>
+              </Route>
+
+              {/* Fallback — role ke according redirect */}
+              <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </BrowserRouter>
         </AppProvider>

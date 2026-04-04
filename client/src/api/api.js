@@ -4,11 +4,7 @@ const getToken = () => localStorage.getItem("token");
 
 const readResponse = async (res) => {
   const text = await res.text();
-
-  if (!text) {
-    return {};
-  }
-
+  if (!text) return {};
   try {
     return JSON.parse(text);
   } catch {
@@ -19,23 +15,18 @@ const readResponse = async (res) => {
 const request = async (method, path, body = null, auth = true) => {
   const headers = { "Content-Type": "application/json" };
   const token = getToken();
-
   if (auth && token) {
     headers.Authorization = `Bearer ${token}`;
   }
-
   const res = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
   });
-
   const data = await readResponse(res);
-
   if (!res.ok) {
     throw new Error(data.message || "Something went wrong");
   }
-
   return data;
 };
 
@@ -52,7 +43,6 @@ const formatTriggerLabel = (triggerType) => {
     curfew: "Curfew",
     flood: "Flood",
   };
-
   return labels[triggerType] || triggerType;
 };
 
@@ -70,7 +60,6 @@ const normalizePolicy = (policy) => ({
 
 const normalizeSubscription = (subscription) => {
   const policy = subscription.policy || {};
-
   return {
     id: subscription._id,
     policyId: policy._id,
@@ -92,7 +81,6 @@ const normalizeSubscription = (subscription) => {
 const normalizeClaim = (claim) => {
   const subscription = claim.subscription || {};
   const policy = subscription.policy || {};
-
   return {
     id: claim._id,
     subscriptionId: subscription._id,
@@ -107,17 +95,20 @@ const normalizeClaim = (claim) => {
   };
 };
 
+// ── AUTH ──────────────────────────────────────────────────
 export const authAPI = {
-  register: (body) => request("POST", "/auth/register", body, false),
-  login: (body) => request("POST", "/auth/login", body, false),
-  forgotPassword: (body) => request("POST", "/auth/forgot-password", body, false),
-  verifyOtp: (body) => request("POST", "/auth/verify-otp", body, false),
-  resetPassword: (body) => request("POST", "/auth/reset-password", body, false),
-  getMe: () => request("GET", "/auth/me"),
-  changePassword: (body) => request("PATCH", "/auth/change-password", body),
-  updateProfile: (body) => request("PATCH", "/auth/update-profile", body),
+  register:        (body) => request("POST",  "/auth/register",          body, false),
+  login:           (body) => request("POST",  "/auth/login",             body, false),
+  forgotPassword:  (body) => request("POST",  "/auth/forgot-password",   body, false),
+  verifyOtp:       (body) => request("POST",  "/auth/verify-otp",        body, false),
+  verifyForgotOtp: (body) => request("POST",  "/auth/verify-forgot-otp", body, false),
+  resetPassword:   (body) => request("POST",  "/auth/reset-password",    body, false),
+  getMe:           ()     => request("GET",   "/auth/me"),
+  changePassword:  (body) => request("PATCH", "/auth/change-password",   body),
+  updateProfile:   (body) => request("PATCH", "/auth/update-profile",    body),
 };
 
+// ── POLICIES ──────────────────────────────────────────────
 export const policyAPI = {
   getCatalog: async () => {
     const data = await request("GET", "/policies", null, false);
@@ -125,6 +116,7 @@ export const policyAPI = {
   },
 };
 
+// ── SUBSCRIPTIONS ─────────────────────────────────────────
 export const subscriptionAPI = {
   buy: async ({ policyId }) => {
     const data = await request("POST", "/subscriptions", { policyId });
@@ -137,6 +129,7 @@ export const subscriptionAPI = {
   cancel: (id) => request("POST", `/subscriptions/${id}/cancel`),
 };
 
+// ── CLAIMS ────────────────────────────────────────────────
 export const claimAPI = {
   create: async (body) => {
     const data = await request("POST", "/claims", body);
@@ -146,13 +139,26 @@ export const claimAPI = {
     const data = await request("GET", "/claims");
     return (data.claims || []).map(normalizeClaim);
   },
-  delete: (id) => request("DELETE", `/claims/${id}`),
+  delete:       (id)                        => request("DELETE", `/claims/${id}`),
   updateStatus: (id, status, adminNote = "") =>
     request("PATCH", `/claims/${id}/status`, { status, adminNote }),
 };
 
+// ── WEATHER ───────────────────────────────────────────────
 export const weatherAPI = {
   checkRain: (city) => request("GET", `/weather/${encodeURIComponent(city)}`, null, false),
+};
+
+// ── ADMIN ─────────────────────────────────────────────────
+export const adminAPI = {
+  getDashboard:   ()                          => request("GET",   "/admin/dashboard"),
+  getUsers:       ()                          => request("GET",   "/admin/users"),
+  deactivateUser: (id)                        => request("PATCH", `/admin/users/${id}/deactivate`),
+  activateUser:   (id)                        => request("PATCH", `/admin/users/${id}/activate`),
+  getClaims:      ()                          => request("GET",   "/admin/claims"),
+  updateClaim:    (id, status, adminNote = "") => request("PATCH", `/admin/claims/${id}/status`, { status, adminNote }),
+  getPolicies:    ()                          => request("GET",   "/admin/policies"),
+  login:          (body)                      => request("POST",  "/admin/login", body, false),
 };
 
 export { formatTriggerLabel };

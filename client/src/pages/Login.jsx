@@ -46,11 +46,6 @@ const styles = `
     70%  { box-shadow: 0 0 0 16px rgba(37,99,235,0); }
     100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); }
   }
-  @keyframes check-pop {
-    0%  { transform: scale(0); opacity: 0; }
-    60% { transform: scale(1.2); }
-    100%{ transform: scale(1); opacity: 1; }
-  }
 
   .float-1  { animation: float-card  6s ease-in-out infinite; }
   .float-2  { animation: float-card2 8s ease-in-out infinite 1s; }
@@ -65,15 +60,6 @@ const styles = `
   .anim-up-3  { animation: fade-up 0.5s ease 0.3s both; }
   .anim-up-4  { animation: fade-up 0.5s ease 0.4s both; }
 
-  .shimmer-text {
-    background: linear-gradient(90deg,#1d4ed8,#3b82f6,#0ea5e9,#3b82f6,#1d4ed8);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmer 4s linear infinite;
-  }
-
   .glass {
     background: rgba(255,255,255,0.75);
     backdrop-filter: blur(20px);
@@ -81,9 +67,7 @@ const styles = `
     border: 1px solid rgba(255,255,255,0.9);
   }
 
-  .input-field {
-    transition: all 0.2s ease;
-  }
+  .input-field { transition: all 0.2s ease; }
   .input-field:focus {
     background: white;
     border-color: #3b82f6;
@@ -95,41 +79,31 @@ const styles = `
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
   }
-  .btn-submit::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .btn-submit:hover::after { opacity: 1; }
   .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 16px 32px -6px rgba(37,99,235,0.5); }
   .btn-submit:active:not(:disabled) { transform: translateY(0); }
 
   .pulse-logo { animation: pulse-ring 2.5s ease-in-out infinite; }
 
-  .feature-item {
-    transition: transform 0.2s ease, background 0.2s ease;
-  }
+  .feature-item { transition: transform 0.2s ease, background 0.2s ease; }
   .feature-item:hover { transform: translateX(4px); background: rgba(255,255,255,0.15); }
 `;
 
 const features = [
-  { icon: Zap,        text: "Instant parametric payouts",         sub: "Under 2 minutes" },
-  { icon: CloudRain,  text: "Rain & heat wave protection",        sub: "Auto-triggered" },
-  { icon: TrendingUp, text: "Up to ₹8,000 weekly coverage",       sub: "No forms needed" },
-  { icon: CheckCircle2,text:"Trusted by 2,400+ gig workers",      sub: "4.9★ rating" },
+  { icon: Zap,         text: "Instant parametric payouts",    sub: "Under 2 minutes" },
+  { icon: CloudRain,   text: "Rain & heat wave protection",   sub: "Auto-triggered" },
+  { icon: TrendingUp,  text: "Up to ₹8,000 weekly coverage", sub: "No forms needed" },
+  { icon: CheckCircle2,text: "Trusted by 2,400+ gig workers", sub: "4.9★ rating" },
 ];
 
 export default function Login() {
-  const navigate    = useNavigate();
-  const { login }   = useAuth();
-  const [form, setForm]         = useState({ email: "", password: "" });
-  const [showPass, setShowPass] = useState(false);
-  const [error, setError]       = useState("");
+  const navigate  = useNavigate();
+  const { login } = useAuth();
+
+  const [form, setForm]               = useState({ email: "", password: "" });
+  const [showPass, setShowPass]       = useState(false);
+  const [error, setError]             = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
-  const [loading, setLoading]   = useState(false);
+  const [loading, setLoading]         = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -147,17 +121,20 @@ export default function Login() {
     e.preventDefault();
     setError("");
     const errors = validateLoginForm(form);
-
     if (Object.keys(errors).length) {
       setFieldErrors(errors);
       return;
     }
-
     setFieldErrors({});
     setLoading(true);
     try {
-      await login(form.email, form.password);
-      navigate("/dashboard");
+      const data = await login(form.email, form.password);
+      // Role ke according redirect
+      if (data?.user?.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError(getAuthErrorMessage(err, "Login failed. Please try again."));
     } finally {
@@ -170,16 +147,10 @@ export default function Login() {
       <style>{styles}</style>
       <div className="login-root min-h-screen flex bg-gradient-to-br from-sky-50 via-white to-blue-50 overflow-hidden">
 
-        {/* ══════════════════════════════
-            LEFT PANEL — Branding
-        ══════════════════════════════ */}
+        {/* LEFT PANEL */}
         <div className="hidden lg:flex lg:w-[52%] relative flex-col items-center justify-center p-12 overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700">
-
-          {/* Animated blobs */}
           <div className="blob-bg  absolute top-10 left-10  w-80 h-80 bg-white/10 rounded-full blur-2xl" />
           <div className="blob-bg2 absolute bottom-10 right-10 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl" />
-
-          {/* Grid overlay */}
           <div className="absolute inset-0 opacity-10"
             style={{
               backgroundImage: 'linear-gradient(rgba(255,255,255,0.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.6) 1px,transparent 1px)',
@@ -188,7 +159,6 @@ export default function Login() {
           />
 
           <div className="relative z-10 max-w-sm w-full">
-            {/* Logo */}
             <div className="anim-left flex items-center gap-3 mb-14">
               <img src="/logo.png" alt="SkySafe" className="pulse-logo w-12 h-12 object-contain rounded-2xl shadow-xl" />
               <span className="font-sora text-2xl font-bold text-white">
@@ -196,7 +166,6 @@ export default function Login() {
               </span>
             </div>
 
-            {/* Headline */}
             <div className="anim-left mb-10">
               <h2 className="font-sora text-4xl font-extrabold text-white leading-tight mb-4">
                 Welcome back,<br />
@@ -208,14 +177,9 @@ export default function Login() {
               </p>
             </div>
 
-            {/* Feature list */}
             <div className="space-y-3 mb-12">
-              {features.map(({ icon: Icon, text, sub }, i) => (
-                <div
-                  key={text}
-                  className="feature-item flex items-center gap-4 px-4 py-3 rounded-2xl border border-white/10 cursor-default"
-                  style={{ animationDelay: `${i * 0.08}s` }}
-                >
+              {features.map(({ icon: Icon, text, sub }) => (
+                <div key={text} className="feature-item flex items-center gap-4 px-4 py-3 rounded-2xl border border-white/10 cursor-default">
                   <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
                     <Icon size={17} className="text-white" />
                   </div>
@@ -227,7 +191,6 @@ export default function Login() {
               ))}
             </div>
 
-            {/* Floating payout card */}
             <div className="float-1 glass rounded-2xl px-5 py-4 flex items-center gap-4 shadow-2xl border-white/50">
               <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shrink-0 shadow-lg">
                 <TrendingUp size={18} className="text-white" />
@@ -241,18 +204,12 @@ export default function Login() {
           </div>
         </div>
 
-        {/* ══════════════════════════════
-            RIGHT PANEL — Form
-        ══════════════════════════════ */}
+        {/* RIGHT PANEL */}
         <div className="flex-1 flex items-center justify-center p-6 relative">
-
-          {/* bg blobs */}
           <div className="fixed top-0 right-0 w-80 h-80 bg-blue-100 rounded-full blur-[100px] opacity-50 pointer-events-none" />
           <div className="fixed bottom-0 left-0 w-72 h-72 bg-sky-100 rounded-full blur-[100px] opacity-40 pointer-events-none" />
 
           <div className="anim-right w-full max-w-md relative z-10">
-
-            {/* Mobile logo */}
             <div className="anim-up lg:hidden flex items-center gap-2.5 mb-8">
               <img src="/logo.png" alt="SkySafe" className="w-10 h-10 object-contain rounded-xl" />
               <span className="font-sora text-xl font-bold text-slate-800">
@@ -260,10 +217,7 @@ export default function Login() {
               </span>
             </div>
 
-            {/* Card */}
             <div className="bg-white rounded-3xl shadow-2xl shadow-blue-100/60 border border-slate-100 overflow-hidden">
-
-              {/* Top gradient bar */}
               <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-sky-400 to-blue-600" />
 
               <div className="p-8 sm:p-10">
@@ -271,97 +225,71 @@ export default function Login() {
                   <h1 className="font-sora text-2xl font-extrabold text-slate-800 mb-1">Sign in to your account</h1>
                   <p className="text-sm text-slate-500">
                     Don't have an account?{" "}
-                    <Link to="/register" className="text-blue-600 font-bold hover:text-blue-700 transition-colors underline-offset-2 hover:underline">
+                    <Link to="/register" className="text-blue-600 font-bold hover:text-blue-700 transition-colors">
                       Sign up free →
                     </Link>
                   </p>
                 </div>
 
-                {/* Error */}
                 {error && (
                   <div className="anim-up flex items-center gap-2.5 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 mb-5 text-sm">
-                    <AlertCircle size={16} className="shrink-0" />
-                    {error}
+                    <AlertCircle size={16} className="shrink-0" /> {error}
                   </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-
-                  {/* Email */}
                   <div className="anim-up-1">
                     <label className="block text-sm font-bold text-slate-700 mb-2">Email address</label>
                     <input
-                      type="email"
-                      name="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      placeholder="you@example.com"
+                      type="email" name="email" value={form.email}
+                      onChange={handleChange} placeholder="you@example.com"
                       className={getInputClass("email")}
                     />
-                    {fieldErrors.email && (
-                      <p className="mt-2 text-xs font-medium text-red-600">{fieldErrors.email}</p>
-                    )}
+                    {fieldErrors.email && <p className="mt-2 text-xs font-medium text-red-600">{fieldErrors.email}</p>}
                   </div>
 
-                  {/* Password */}
                   <div className="anim-up-2">
                     <div className="flex items-center justify-between mb-2">
                       <label className="text-sm font-bold text-slate-700">Password</label>
-                      <Link to="/forgot-password" className="text-xs text-blue-600 font-semibold hover:text-blue-700 transition-colors">
+                      <Link to="/forgot-password" className="text-xs text-blue-600 font-semibold hover:text-blue-700">
                         Forgot password?
                       </Link>
                     </div>
                     <div className="relative">
                       <input
-                        type={showPass ? "text" : "password"}
-                        name="password"
-                        value={form.password}
-                        onChange={handleChange}
+                        type={showPass ? "text" : "password"} name="password"
+                        value={form.password} onChange={handleChange}
                         placeholder="Enter your password"
                         className={`${getInputClass("password")} pr-12`}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPass(p => !p)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                      >
+                      <button type="button" onClick={() => setShowPass(p => !p)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                         {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                       </button>
                     </div>
-                    {fieldErrors.password && (
-                      <p className="mt-2 text-xs font-medium text-red-600">{fieldErrors.password}</p>
-                    )}
+                    {fieldErrors.password && <p className="mt-2 text-xs font-medium text-red-600">{fieldErrors.password}</p>}
                   </div>
 
-                  {/* Submit */}
                   <div className="anim-up-3">
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="btn-submit w-full flex items-center justify-center gap-2.5 bg-blue-600 disabled:bg-blue-400 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-200 text-sm mt-1"
-                    >
-                      {loading ? (
-                        <><Loader2 size={18} className="animate-spin" /> Signing in...</>
-                      ) : (
-                        <><Shield size={17} /> Sign In to SkySafe <ArrowRight size={17} /></>
-                      )}
+                    <button type="submit" disabled={loading}
+                      className="btn-submit w-full flex items-center justify-center gap-2.5 bg-blue-600 disabled:bg-blue-400 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-blue-200 text-sm mt-1">
+                      {loading
+                        ? <><Loader2 size={18} className="animate-spin" /> Signing in...</>
+                        : <><Shield size={17} /> Sign In to SkySafe <ArrowRight size={17} /></>}
                     </button>
                   </div>
                 </form>
 
-                {/* Divider */}
                 <div className="anim-up-4 flex items-center gap-3 my-6">
                   <div className="flex-1 h-px bg-slate-100" />
                   <span className="text-xs text-slate-400 font-medium">secured by</span>
                   <div className="flex-1 h-px bg-slate-100" />
                 </div>
 
-                {/* Trust badges */}
                 <div className="anim-up-4 flex items-center justify-center gap-4">
-                  {['256-bit SSL', 'A-Rated Cover', 'Zero Paperwork'].map(badge => (
+                  {["256-bit SSL", "A-Rated Cover", "Zero Paperwork"].map(badge => (
                     <div key={badge} className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-                      <CheckCircle2 size={13} className="text-emerald-500" />
-                      {badge}
+                      <CheckCircle2 size={13} className="text-emerald-500" /> {badge}
                     </div>
                   ))}
                 </div>

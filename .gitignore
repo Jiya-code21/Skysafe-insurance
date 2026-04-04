@@ -22,3 +22,12 @@ Thumbs.db
  
 # VS Code
 .vscode/
+
+server/createAdmin.js
+server/test.js
+
+createAdmin.js
+test.js
+
+git rm --cached server/createAdmin.js
+git rm --cached server/test.js

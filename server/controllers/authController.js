@@ -2,7 +2,7 @@ const User = require("../models/User");
 const PendingUser = require("../models/Pendinguser.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { sendOTPEmail, sendWelcomeEmail,sendForgotPasswordEmail} = require("../services/emailService.js");
+const { sendOTPEmail, sendWelcomeEmail, sendForgotPasswordEmail } = require("../services/emailService.js");
 
 // ================= REGISTER =================
 exports.register = async (req, res) => {
@@ -17,7 +17,6 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
-    // Check real users mein
     const realUserExist = await User.findOne({ email: email.toLowerCase() });
     if (realUserExist) {
       return res.status(409).json({ message: "User already exists" });
@@ -26,7 +25,6 @@ exports.register = async (req, res) => {
     const hashed = await bcrypt.hash(password, 12);
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Pending user mein save karo ya update karo
     await PendingUser.findOneAndUpdate(
       { email: email.toLowerCase() },
       {
@@ -34,14 +32,15 @@ exports.register = async (req, res) => {
         email: email.toLowerCase().trim(),
         password: hashed,
         otp: otp,
-        otpExpire: Date.now() + 1.5 * 60 * 1000
+        otpExpire: Date.now() + 10 * 60 * 1000 // ✅ 10 minutes
       },
       { upsert: true, new: true }
     );
 
+    await sendOTPEmail(email.toLowerCase(), name.trim(), otp);
+
     res.status(201).json({
-      message: "OTP sent. Please verify to complete registration.",
-      otp  // dev mode — production mein email se bhejenge
+      message: "OTP sent to your email. Please verify to complete registration."
     });
 
   } catch (error) {
@@ -74,6 +73,10 @@ exports.verifyOtp = async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
+    if (pendingUser.otp !== otp || pendingUser.otpExpire < Date.now()) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
     // Real User banao
     const user = new User({
       name: pendingUser.name,
@@ -85,8 +88,9 @@ exports.verifyOtp = async (req, res) => {
 
     await user.save();
 
-    // PendingUser delete karo
     await PendingUser.findOneAndDelete({ email: email.toLowerCase() });
+
+    await sendWelcomeEmail(user.email, user.name);
 
     res.json({ message: "Account verified successfully. You can now login." });
 
@@ -114,10 +118,12 @@ exports.resendOtp = async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     pendingUser.otp = otp;
-    pendingUser.otpExpire = Date.now() + 1.5 * 60 * 1000;
+    pendingUser.otpExpire = Date.now() + 10 * 60 * 1000; // ✅ 10 minutes
     await pendingUser.save();
 
-    res.json({ message: "OTP resent successfully", otp });
+    await sendOTPEmail(email.toLowerCase(), pendingUser.name, otp);
+
+    res.json({ message: "OTP resent successfully to your email." });
 
   } catch (error) {
     console.error("Resend OTP error:", error);
@@ -176,7 +182,7 @@ exports.login = async (req, res) => {
   }
 };
 
-// ================= FORGOT PASSWORD (OTP bhejo) =================
+// ================= FORGOT PASSWORD =================
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -193,12 +199,13 @@ exports.forgotPassword = async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.otp = otp;
-    user.otpExpire = Date.now() + 1.5 * 60 * 1000;
+    user.otpExpire = Date.now() + 10 * 60 * 1000; // ✅ 10 minutes
     await user.save();
 
+    await sendForgotPasswordEmail(email.toLowerCase(), user.name, otp);
+
     res.json({
-      message: "If this email exists, OTP has been sent",
-      otp  // dev mode
+      message: "If this email exists, OTP has been sent"
     });
 
   } catch (error) {
