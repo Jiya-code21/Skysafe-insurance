@@ -4,6 +4,15 @@ import { Link } from "react-router-dom";
 import { subscriptionAPI } from "../api/api.js";
 import PolicyCard from "../components/PolicyCard.jsx";
 
+const formatDate = (value) =>
+  value
+    ? new Date(value).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "-";
+
 export default function MyPolicies() {
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +34,6 @@ export default function MyPolicies() {
 
   return (
     <div className="space-y-6 pb-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">My Policies</h1>
@@ -41,7 +49,6 @@ export default function MyPolicies() {
         </Link>
       </div>
 
-      {/* Error */}
       {error && (
         <div className="flex items-center gap-2.5 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
           <AlertCircle size={16} className="shrink-0" />
@@ -49,7 +56,6 @@ export default function MyPolicies() {
         </div>
       )}
 
-      {/* Loading */}
       {loading ? (
         <div className="flex justify-center py-16">
           <Loader2 size={28} className="animate-spin text-blue-500" />

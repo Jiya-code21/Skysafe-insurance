@@ -49,6 +49,7 @@ export default function BuyPolicy() {
     if (!selectedPlan) return;
     setError("");
     setLoading(true);
+
     try {
       await subscriptionAPI.buy({ policyId: selectedPlan.id });
       setSuccess("Policy purchased successfully. Redirecting...");

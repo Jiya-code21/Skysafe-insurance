@@ -212,9 +212,7 @@ export default function Register() {
 
           <div className="relative z-10 max-w-sm w-full">
             <div className="anim-l flex items-center gap-3 mb-12">
-              <div className="pulse-logo w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center border border-white/30 shadow-xl backdrop-blur-sm">
-                <Shield size={24} className="text-white" />
-              </div>
+              <img src="/logo.png" alt="SkySafe" className="pulse-logo w-16 h-16 object-contain drop-shadow-xl" />
               <span className="font-sora text-2xl font-bold text-white">
                 Sky<span className="text-blue-200">Safe</span>
               </span>
@@ -266,9 +264,7 @@ export default function Register() {
 
           <div className="anim-r w-full max-w-md relative z-10 py-6">
             <div className="anim-0 lg:hidden flex items-center gap-2.5 mb-7">
-              <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md shadow-blue-200">
-                <Shield size={20} className="text-white" />
-              </div>
+              <img src="/logo.png" alt="SkySafe" className="w-12 h-12 object-contain" />
               <span className="font-sora text-xl font-bold text-slate-800">
                 Sky<span className="text-blue-600">Safe</span>
               </span>
@@ -331,7 +327,10 @@ export default function Register() {
                         City
                       </label>
                       <div className="relative">
-                        <MapPin size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <MapPin
+                          size={14}
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+                        />
                         <input
                           type="text"
                           name="location"

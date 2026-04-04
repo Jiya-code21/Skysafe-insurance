@@ -73,6 +73,11 @@ exports.verifyOtp = async (req, res) => {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
+    if (pendingUser.otp !== otp || pendingUser.otpExpire < Date.now()) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    // Real User banao
     const user = new User({
       name: pendingUser.name,
       email: pendingUser.email,
@@ -237,7 +242,7 @@ exports.verifyForgotOtp = async (req, res) => {
   }
 };
 
-// ================= RESET PASSWORD =================
+// ================= RESET PASSWORD (Forgot wala — OTP se) =================
 exports.resetPassword = async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
@@ -283,7 +288,7 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// ================= CHANGE PASSWORD =================
+// ================= CHANGE PASSWORD (Login hone ke baad) =================
 exports.changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;

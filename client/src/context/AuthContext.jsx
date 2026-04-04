@@ -44,6 +44,32 @@ export const AuthProvider = ({ children }) => {
     const data = await authAPI.register({ name, email, password, location });
     return data;
   };
+  const verifyOtp = async (email, code) => {
+  // Call your backend API to verify the OTP
+  // Example:
+  const res = await fetch("/api/auth/verify-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp: code }),
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.message || "Invalid OTP");
+  }
+};
+
+const resendOtp = async (email) => {
+  // Call your backend API to resend the OTP
+  const res = await fetch("/api/auth/resend-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const data = await res.json();
+    throw new Error(data.message || "Could not resend OTP");
+  }
+};
 
   // ✅ Naya
   const verifyOtp = async (email, otp) => {
