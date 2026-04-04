@@ -40,14 +40,14 @@ function App() {
         <AppProvider>
           <BrowserRouter>
             <Routes>
+
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/verify-otp" element={<VerifyOTP />} />
+              <Route path="/verify-otp" element={<VerifyOtp />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/verify-otp" element={<VerifyOtp />} />
 
               {/* User Protected Routes */}
               <Route element={<ProtectedRoute />}>
@@ -72,8 +72,9 @@ function App() {
                 </Route>
               </Route>
 
-              {/* Fallback — role ke according redirect */}
+              {/* Fallback */}
               <Route path="*" element={<Navigate to="/login" replace />} />
+
             </Routes>
           </BrowserRouter>
         </AppProvider>
