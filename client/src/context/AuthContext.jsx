@@ -20,11 +20,11 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       return;
     }
+
     authAPI
       .getMe()
       .then((data) => {
-        const u = data.user;
-        setUser(buildUser(u));
+        setUser(buildUser(data.user));
       })
       .catch(() => {
         localStorage.removeItem("token");
@@ -44,36 +44,16 @@ export const AuthProvider = ({ children }) => {
     const data = await authAPI.register({ name, email, password, location });
     return data;
   };
-  const verifyOtp = async (email, code) => {
-  // Call your backend API to verify the OTP
-  // Example:
-  const res = await fetch("/api/auth/verify-otp", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, otp: code }),
-  });
-  if (!res.ok) {
-    const data = await res.json();
-    throw new Error(data.message || "Invalid OTP");
-  }
-};
 
-const resendOtp = async (email) => {
-  // Call your backend API to resend the OTP
-  const res = await fetch("/api/auth/resend-otp", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
-  if (!res.ok) {
-    const data = await res.json();
-    throw new Error(data.message || "Could not resend OTP");
-  }
-};
-
-  // ✅ Naya
+  // ✅ ONLY ONE verifyOtp (fixed)
   const verifyOtp = async (email, otp) => {
     const data = await authAPI.verifyOtp({ email, otp });
+    return data;
+  };
+
+  // ✅ resend OTP (optional but useful)
+  const resendOtp = async (email) => {
+    const data = await authAPI.resendOtp({ email });
     return data;
   };
 
@@ -95,11 +75,24 @@ const resendOtp = async (email) => {
   const changePassword = async (body) => {
     await authAPI.changePassword(body);
   };
+
   const updatePassword = changePassword;
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, logout, verifyOtp, refreshUser, updateProfile, changePassword, updatePassword }}
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        logout,
+        verifyOtp,
+        resendOtp,
+        refreshUser,
+        updateProfile,
+        changePassword,
+        updatePassword,
+      }}
     >
       {children}
     </AuthContext.Provider>
