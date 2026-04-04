@@ -40,7 +40,6 @@ export default function BuyPolicy() {
         setLoadingPlans(false);
       }
     };
-
     fetchPlans();
   }, []);
 
@@ -48,10 +47,8 @@ export default function BuyPolicy() {
 
   const handleBuy = async () => {
     if (!selectedPlan) return;
-
     setError("");
     setLoading(true);
-
     try {
       await subscriptionAPI.buy({ policyId: selectedPlan.id });
       setSuccess("Policy purchased successfully. Redirecting...");
@@ -73,6 +70,7 @@ export default function BuyPolicy() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-6">
+      {/* Header */}
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate("/policy")}
@@ -88,6 +86,7 @@ export default function BuyPolicy() {
         </div>
       </div>
 
+      {/* Error */}
       {error && (
         <div className="flex items-center gap-2.5 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
           <AlertCircle size={16} className="shrink-0" />
@@ -95,6 +94,7 @@ export default function BuyPolicy() {
         </div>
       )}
 
+      {/* Success */}
       {success && (
         <div className="flex items-center gap-2.5 bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 text-sm">
           <CheckCircle2 size={16} className="shrink-0" />
@@ -114,6 +114,7 @@ export default function BuyPolicy() {
         </div>
       ) : (
         <>
+          {/* Plans list */}
           <div className="grid gap-4">
             {plans.map((plan) => (
               <button
@@ -147,39 +148,43 @@ export default function BuyPolicy() {
 
                   <div className="text-right shrink-0">
                     <p className="text-2xl font-bold text-slate-800">
-                      Rs {plan.weeklyPremium}
+                      Rs {plan.weeklyPremium ?? 0}
                       <span className="text-sm font-normal text-slate-400">/wk</span>
                     </p>
                     <p className="text-xs text-slate-400">
-                      Up to Rs {plan.coverageAmount.toLocaleString()}
+                      Up to Rs {plan.coverageAmount?.toLocaleString() ?? "0"}
                     </p>
                   </div>
                 </div>
 
-                <ul className="flex flex-wrap gap-2 mt-3">
-                  {plan.triggerTypes.map((trigger) => (
-                    <li
-                      key={trigger}
-                      className="flex items-center gap-1.5 text-xs text-slate-600 bg-white border border-slate-100 rounded-full px-3 py-1"
-                    >
-                      <CheckCircle2 size={12} className="text-blue-500 shrink-0" />
-                      {triggerLabels[trigger] || trigger}
-                    </li>
-                  ))}
-                </ul>
+                {/* Triggers */}
+                {plan.triggerTypes?.length > 0 && (
+                  <ul className="flex flex-wrap gap-2 mt-3">
+                    {plan.triggerTypes.map((trigger) => (
+                      <li
+                        key={trigger}
+                        className="flex items-center gap-1.5 text-xs text-slate-600 bg-white border border-slate-100 rounded-full px-3 py-1"
+                      >
+                        <CheckCircle2 size={12} className="text-blue-500 shrink-0" />
+                        {triggerLabels[trigger] || trigger}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </button>
             ))}
           </div>
 
+          {/* Confirm box */}
           <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-sm font-semibold text-slate-700">
-                  Selected: {selectedPlan?.title}
+                  Selected: {selectedPlan?.title ?? "-"}
                 </p>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Rs {selectedPlan?.weeklyPremium}/week · Coverage up to Rs{" "}
-                  {selectedPlan?.coverageAmount?.toLocaleString()}
+                  Rs {selectedPlan?.weeklyPremium ?? 0}/week · Coverage up to Rs{" "}
+                  {selectedPlan?.coverageAmount?.toLocaleString() ?? "0"}
                 </p>
               </div>
               <ShieldCheck size={28} className="text-blue-500" />
@@ -196,7 +201,7 @@ export default function BuyPolicy() {
                   Processing...
                 </>
               ) : (
-                <>Confirm Purchase - Rs {selectedPlan?.weeklyPremium}/wk</>
+                <>Confirm Purchase — Rs {selectedPlan?.weeklyPremium ?? 0}/wk</>
               )}
             </button>
           </div>

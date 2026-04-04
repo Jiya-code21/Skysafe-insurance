@@ -120,15 +120,12 @@ const getStrength = (password) => {
   if (!password) {
     return { label: "", color: "bg-slate-200", pct: "0%", textColor: "text-slate-400" };
   }
-
   if (password.length < 6) {
     return { label: "Weak", color: "bg-red-400", pct: "30%", textColor: "text-red-500" };
   }
-
   if (password.length < 10) {
     return { label: "Fair", color: "bg-amber-400", pct: "65%", textColor: "text-amber-500" };
   }
-
   return { label: "Strong", color: "bg-emerald-500", pct: "100%", textColor: "text-emerald-600" };
 };
 
@@ -186,8 +183,10 @@ export default function Register() {
 
     try {
       await register(form.name, form.email, form.password, form.location);
-      setSuccess("Account created successfully. Redirecting to login...");
-      setTimeout(() => navigate("/login"), 1800);
+      setSuccess("OTP sent to your email! Redirecting...");
+      setTimeout(() => navigate("/verify-otp", {
+        state: { email: form.email }
+      }), 1800);
     } catch (err) {
       setError(getAuthErrorMessage(err, "Registration failed. Try again."));
     } finally {
@@ -332,10 +331,7 @@ export default function Register() {
                         City
                       </label>
                       <div className="relative">
-                        <MapPin
-                          size={14}
-                          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                        />
+                        <MapPin size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
                           type="text"
                           name="location"

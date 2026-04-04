@@ -143,16 +143,16 @@ const styles = `
 const STEPS = { EMAIL: 1, OTP: 2, RESET: 3, SUCCESS: 4 };
 
 const stepMeta = {
-  1: { icon: Mail,    color: "bg-blue-600",   label: "Email",    progressPct: "33%" },
-  2: { icon: Shield,  color: "bg-sky-500",    label: "Verify",   progressPct: "66%" },
-  3: { icon: KeyRound,color: "bg-indigo-600", label: "Reset",    progressPct: "100%" },
-  4: { icon: CheckCircle2, color:"bg-emerald-500", label:"Done", progressPct:"100%" },
+  1: { icon: Mail,     color: "bg-blue-600",    label: "Email",  progressPct: "33%"  },
+  2: { icon: Shield,   color: "bg-sky-500",     label: "Verify", progressPct: "66%"  },
+  3: { icon: KeyRound, color: "bg-indigo-600",  label: "Reset",  progressPct: "100%" },
+  4: { icon: CheckCircle2, color: "bg-emerald-500", label: "Done", progressPct: "100%" },
 };
 
 /* ── OTP Input Component ─────────────────────────────────────────── */
 const OtpInput = ({ value, onChange }) => {
   const refs = Array.from({ length: 6 }, () => useRef(null));
-  const digits = value.padEnd(6, '').split('');
+  const digits = value.padEnd(6, ' ').split('');
 
   const handleKey = (i, e) => {
     if (e.key === 'Backspace') {
@@ -203,42 +203,51 @@ const OtpInput = ({ value, onChange }) => {
 /* ── Main Component ──────────────────────────────────────────────── */
 export default function ForgotPassword() {
   const navigate = useNavigate();
-  const [step, setStep]           = useState(STEPS.EMAIL);
-  const [email, setEmail]         = useState("");
-  const [otp, setOtp]             = useState("");
+  const [step, setStep]                     = useState(STEPS.EMAIL);
+  const [email, setEmail]                   = useState("");
+  const [otp, setOtp]                       = useState("");
   const [newPassword, setNewPassword]       = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState("");
-  const [info, setInfo]           = useState("");
+  const [loading, setLoading]               = useState(false);
+  const [error, setError]                   = useState("");
+  const [info, setInfo]                     = useState("");
 
   const meta = stepMeta[step];
 
+  // ── Step 1: Email submit → OTP bhejo ──────────────────────────
   const handleSendOtp = async (e) => {
     e.preventDefault();
     setError(""); setInfo("");
     if (!email) { setError("Please enter your email."); return; }
     setLoading(true);
     try {
-      const data = await authAPI.forgotPassword({ email });
-      setInfo(data.otp ? `OTP sent! (Dev: ${data.otp})` : "OTP sent to your email.");
+      await authAPI.forgotPassword({ email });
+      setInfo("OTP sent to your email.");
       setStep(STEPS.OTP);
-    } catch (err) { setError(err.message); }
-    finally { setLoading(false); }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ── Step 2: OTP verify ─────────────────────────────────────────
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setError(""); setInfo("");
     if (otp.length < 6) { setError("Please enter the complete 6-digit OTP."); return; }
     setLoading(true);
     try {
-      await authAPI.verifyOtp({ email, otp });
+      await authAPI.verifyForgotOtp({ email, otp }); // ✅ sahi route
       setStep(STEPS.RESET);
-    } catch (err) { setError(err.message); }
-    finally { setLoading(false); }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // ── Step 3: Naya password set karo ────────────────────────────
   const handleReset = async (e) => {
     e.preventDefault();
     setError(""); setInfo("");
@@ -249,15 +258,18 @@ export default function ForgotPassword() {
     try {
       await authAPI.resetPassword({ email, otp, newPassword });
       setStep(STEPS.SUCCESS);
-    } catch (err) { setError(err.message); }
-    finally { setLoading(false); }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStrength = (p) => {
     if (!p) return null;
-    if (p.length < 6)  return { label:"Weak",   color:"bg-red-400",    pct:"30%",  tc:"text-red-500" };
-    if (p.length < 10) return { label:"Fair",   color:"bg-amber-400",  pct:"65%",  tc:"text-amber-500" };
-    return               { label:"Strong", color:"bg-emerald-500", pct:"100%", tc:"text-emerald-600" };
+    if (p.length < 6)  return { label: "Weak",   color: "bg-red-400",    pct: "30%",  tc: "text-red-500" };
+    if (p.length < 10) return { label: "Fair",   color: "bg-amber-400",  pct: "65%",  tc: "text-amber-500" };
+    return               { label: "Strong", color: "bg-emerald-500", pct: "100%", tc: "text-emerald-600" };
   };
   const strength = getStrength(newPassword);
 
@@ -272,7 +284,7 @@ export default function ForgotPassword() {
           <div className="blob1 absolute top-16 left-8   w-72 h-72 bg-white/10 rounded-full blur-2xl" />
           <div className="blob2 absolute bottom-8 right-4 w-80 h-80 bg-sky-400/20 rounded-full blur-3xl" />
           <div className="absolute inset-0 opacity-[0.07]"
-            style={{ backgroundImage:'linear-gradient(rgba(255,255,255,0.7) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.7) 1px,transparent 1px)', backgroundSize:'44px 44px' }}
+            style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.7) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.7) 1px,transparent 1px)', backgroundSize: '44px 44px' }}
           />
 
           <div className="relative z-10 max-w-xs w-full">
@@ -298,12 +310,12 @@ export default function ForgotPassword() {
               </p>
             </div>
 
-            {/* Step indicators — left side */}
+            {/* Step indicators */}
             <div className="space-y-4">
               {[
-                { n:1, label:"Enter your email",        icon: Mail },
-                { n:2, label:"Verify with OTP code",    icon: Shield },
-                { n:3, label:"Set your new password",   icon: KeyRound },
+                { n: 1, label: "Enter your email",      icon: Mail },
+                { n: 2, label: "Verify with OTP code",  icon: Shield },
+                { n: 3, label: "Set your new password", icon: KeyRound },
               ].map(({ n, label, icon: Icon }) => {
                 const isActive   = step === n;
                 const isComplete = step > n;
@@ -339,7 +351,7 @@ export default function ForgotPassword() {
               </div>
               <div>
                 <p className="text-slate-600 text-xs font-medium">Recovery is secure</p>
-                <p className="text-slate-900 text-sm font-bold">OTP expires in 5 min</p>
+                <p className="text-slate-900 text-sm font-bold">OTP expires in 10 min</p>
               </div>
               <Sparkles size={18} className="text-blue-400 ml-auto shrink-0" />
             </div>
@@ -374,7 +386,7 @@ export default function ForgotPassword() {
                 <div className="h-1 bg-slate-100">
                   <div
                     key={step}
-                    className={`progress-bar h-full bg-gradient-to-r from-blue-500 to-sky-400 transition-all duration-500`}
+                    className="progress-bar h-full bg-gradient-to-r from-blue-500 to-sky-400 transition-all duration-500"
                     style={{ width: meta.progressPct }}
                   />
                 </div>
@@ -382,10 +394,10 @@ export default function ForgotPassword() {
 
               <div className="p-8 sm:p-10">
 
-                {/* Step pills — top */}
+                {/* Step pills */}
                 {step !== STEPS.SUCCESS && (
                   <div className="anim-0 flex items-center gap-2 mb-8">
-                    {[1,2,3].map(s => (
+                    {[1, 2, 3].map(s => (
                       <React.Fragment key={s}>
                         <div className={`step-pill flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
                           step === s
@@ -394,7 +406,7 @@ export default function ForgotPassword() {
                             ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
                             : 'bg-slate-100 text-slate-400'
                         }`}>
-                          {step > s ? <CheckCircle2 size={12}/> : <span>{s}</span>}
+                          {step > s ? <CheckCircle2 size={12} /> : <span>{s}</span>}
                           {s === 1 ? 'Email' : s === 2 ? 'Verify' : 'Reset'}
                         </div>
                         {s < 3 && <div className={`flex-1 h-px transition-colors ${step > s ? 'bg-emerald-300' : 'bg-slate-100'}`} />}
@@ -403,17 +415,18 @@ export default function ForgotPassword() {
                   </div>
                 )}
 
-                {/* Step icon */}
+                {/* Step icon + heading */}
                 <div className="anim-0 mb-5">
                   {step === STEPS.SUCCESS ? (
                     <div className="success-icon w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center shadow-xl shadow-emerald-200 mb-5">
                       <CheckCircle2 size={32} className="text-white" />
                     </div>
                   ) : (
-                    <div className={`step-icon w-14 h-14 rounded-2xl ${meta.color} flex items-center justify-center shadow-xl mb-5`}
+                    <div
+                      className={`step-icon w-14 h-14 rounded-2xl ${meta.color} flex items-center justify-center shadow-xl mb-5`}
                       style={{ boxShadow: step === 1 ? '0 12px 24px -4px rgba(37,99,235,0.4)' : step === 2 ? '0 12px 24px -4px rgba(14,165,233,0.4)' : '0 12px 24px -4px rgba(79,70,229,0.4)' }}
                     >
-                      {React.createElement(meta.icon, { size:26, className:"text-white" })}
+                      {React.createElement(meta.icon, { size: 26, className: "text-white" })}
                     </div>
                   )}
 
@@ -425,7 +438,7 @@ export default function ForgotPassword() {
                   </h1>
                   <p className="text-sm text-slate-500">
                     {step === STEPS.EMAIL  ? "Enter your registered email to receive a one-time code." :
-                     step === STEPS.OTP   ? <>We sent a 6-digit code to <span className="font-bold text-blue-600">{email}</span></> :
+                     step === STEPS.OTP   ? <><span>We sent a 6-digit code to </span><span className="font-bold text-blue-600">{email}</span></> :
                      step === STEPS.RESET ? "Almost there — choose a strong new password." :
                                             "Your password has been reset successfully."}
                   </p>
@@ -443,7 +456,7 @@ export default function ForgotPassword() {
                   </div>
                 )}
 
-                {/* ── STEP 1: Email ───────────────────────────── */}
+                {/* ── STEP 1: Email ─────────────────────────── */}
                 {step === STEPS.EMAIL && (
                   <form onSubmit={handleSendOtp} className="flex flex-col gap-5">
                     <div className="anim-1">
@@ -451,7 +464,8 @@ export default function ForgotPassword() {
                       <div className="relative">
                         <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
-                          type="email" value={email}
+                          type="email"
+                          value={email}
                           onChange={e => setEmail(e.target.value)}
                           placeholder="you@example.com"
                           className="input-f w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-50 text-slate-800 text-sm placeholder-slate-400"
@@ -462,20 +476,20 @@ export default function ForgotPassword() {
                       <button type="submit" disabled={loading}
                         className="btn-main w-full flex items-center justify-center gap-2.5 bg-blue-600 disabled:bg-blue-400 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 text-sm">
                         {loading
-                          ? <><Loader2 size={17} className="animate-spin"/> Sending OTP…</>
-                          : <><Mail size={17}/> Send OTP Code <ArrowRight size={17}/></>
+                          ? <><Loader2 size={17} className="animate-spin" /> Sending OTP…</>
+                          : <><Mail size={17} /> Send OTP Code <ArrowRight size={17} /></>
                         }
                       </button>
                     </div>
                     <div className="anim-3 text-center">
                       <Link to="/login" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-blue-600 transition-colors font-medium">
-                        <ArrowLeft size={14}/> Back to Login
+                        <ArrowLeft size={14} /> Back to Login
                       </Link>
                     </div>
                   </form>
                 )}
 
-                {/* ── STEP 2: OTP ─────────────────────────────── */}
+                {/* ── STEP 2: OTP ───────────────────────────── */}
                 {step === STEPS.OTP && (
                   <form onSubmit={handleVerifyOtp} className="flex flex-col gap-6">
                     <div className="anim-1">
@@ -485,7 +499,7 @@ export default function ForgotPassword() {
                       <OtpInput value={otp} onChange={setOtp} />
                       {otp.length === 6 && (
                         <p className="text-center text-xs text-emerald-600 font-semibold mt-3 flex items-center justify-center gap-1">
-                          <CheckCircle2 size={13}/> Code complete
+                          <CheckCircle2 size={13} /> Code complete
                         </p>
                       )}
                     </div>
@@ -493,15 +507,15 @@ export default function ForgotPassword() {
                       <button type="submit" disabled={loading || otp.length < 6}
                         className="btn-main w-full flex items-center justify-center gap-2.5 bg-blue-600 disabled:bg-blue-300 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 text-sm">
                         {loading
-                          ? <><Loader2 size={17} className="animate-spin"/> Verifying…</>
-                          : <><Shield size={17}/> Verify OTP <ArrowRight size={17}/></>
+                          ? <><Loader2 size={17} className="animate-spin" /> Verifying…</>
+                          : <><Shield size={17} /> Verify OTP <ArrowRight size={17} /></>
                         }
                       </button>
                     </div>
                     <div className="anim-3 flex items-center justify-between text-sm">
                       <button type="button" onClick={() => { setStep(STEPS.EMAIL); setOtp(""); }}
                         className="inline-flex items-center gap-1.5 text-slate-400 hover:text-blue-600 transition-colors font-medium">
-                        <ArrowLeft size={14}/> Change email
+                        <ArrowLeft size={14} /> Change email
                       </button>
                       <button type="button" onClick={handleSendOtp}
                         className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
@@ -511,15 +525,16 @@ export default function ForgotPassword() {
                   </form>
                 )}
 
-                {/* ── STEP 3: New Password ─────────────────────── */}
+                {/* ── STEP 3: New Password ─────────────────── */}
                 {step === STEPS.RESET && (
                   <form onSubmit={handleReset} className="flex flex-col gap-5">
                     <div className="anim-1">
                       <label className="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wide">New Password</label>
                       <div className="relative">
-                        <KeyRound size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"/>
+                        <KeyRound size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
-                          type="password" value={newPassword}
+                          type="password"
+                          value={newPassword}
                           onChange={e => setNewPassword(e.target.value)}
                           placeholder="Min. 6 characters"
                           className="input-f w-full pl-11 pr-4 py-3.5 rounded-xl bg-slate-50 text-slate-800 text-sm placeholder-slate-400"
@@ -532,7 +547,7 @@ export default function ForgotPassword() {
                             <span className={`text-xs font-bold ${strength.tc}`}>{strength.label}</span>
                           </div>
                           <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div className={`h-full ${strength.color} rounded-full transition-all duration-500`} style={{ width: strength.pct }}/>
+                            <div className={`h-full ${strength.color} rounded-full transition-all duration-500`} style={{ width: strength.pct }} />
                           </div>
                         </div>
                       )}
@@ -540,9 +555,10 @@ export default function ForgotPassword() {
                     <div className="anim-2">
                       <label className="block text-xs font-bold text-slate-600 mb-2 uppercase tracking-wide">Confirm Password</label>
                       <div className="relative">
-                        <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"/>
+                        <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input
-                          type="password" value={confirmPassword}
+                          type="password"
+                          value={confirmPassword}
                           onChange={e => setConfirmPassword(e.target.value)}
                           placeholder="Repeat password"
                           className="input-f w-full pl-11 pr-11 py-3.5 rounded-xl bg-slate-50 text-slate-800 text-sm placeholder-slate-400"
@@ -550,8 +566,8 @@ export default function ForgotPassword() {
                         {confirmPassword && (
                           <div className="absolute right-4 top-1/2 -translate-y-1/2">
                             {newPassword === confirmPassword
-                              ? <CheckCircle2 size={17} className="text-emerald-500"/>
-                              : <AlertCircle  size={17} className="text-red-400"/>
+                              ? <CheckCircle2 size={17} className="text-emerald-500" />
+                              : <AlertCircle  size={17} className="text-red-400" />
                             }
                           </div>
                         )}
@@ -561,15 +577,15 @@ export default function ForgotPassword() {
                       <button type="submit" disabled={loading}
                         className="btn-main w-full flex items-center justify-center gap-2.5 bg-indigo-600 disabled:bg-indigo-400 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-200 text-sm">
                         {loading
-                          ? <><Loader2 size={17} className="animate-spin"/> Resetting…</>
-                          : <><KeyRound size={17}/> Reset My Password <ArrowRight size={17}/></>
+                          ? <><Loader2 size={17} className="animate-spin" /> Resetting…</>
+                          : <><KeyRound size={17} /> Reset My Password <ArrowRight size={17} /></>
                         }
                       </button>
                     </div>
                   </form>
                 )}
 
-                {/* ── STEP 4: Success ──────────────────────────── */}
+                {/* ── STEP 4: Success ──────────────────────── */}
                 {step === STEPS.SUCCESS && (
                   <div className="flex flex-col items-center gap-5 text-center">
                     <div className="w-full bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
@@ -580,7 +596,7 @@ export default function ForgotPassword() {
                     </div>
                     <button onClick={() => navigate("/login")}
                       className="btn-main w-full flex items-center justify-center gap-2.5 bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-200 text-sm">
-                      <Shield size={17}/> Go to Login <ArrowRight size={17}/>
+                      <Shield size={17} /> Go to Login <ArrowRight size={17} />
                     </button>
                     <p className="text-xs text-slate-400">
                       Need help?{" "}

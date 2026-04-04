@@ -2,7 +2,7 @@ const User = require("../models/User");
 const PendingUser = require("../models/Pendinguser.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { sendOTPEmail, sendWelcomeEmail,sendForgotPasswordEmail} = require("../services/emailService.js");
+const { sendOTPEmail, sendWelcomeEmail, sendForgotPasswordEmail } = require("../services/emailService.js");
 
 // ================= REGISTER =================
 exports.register = async (req, res) => {
@@ -32,7 +32,7 @@ exports.register = async (req, res) => {
         email: email.toLowerCase().trim(),
         password: hashed,
         otp: otp,
-        otpExpire: Date.now() + 1.5 * 60 * 1000
+        otpExpire: Date.now() + 10 * 60 * 1000 // ✅ 10 minutes
       },
       { upsert: true, new: true }
     );
@@ -113,7 +113,7 @@ exports.resendOtp = async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     pendingUser.otp = otp;
-    pendingUser.otpExpire = Date.now() + 1.5 * 60 * 1000;
+    pendingUser.otpExpire = Date.now() + 10 * 60 * 1000; // ✅ 10 minutes
     await pendingUser.save();
 
     await sendOTPEmail(email.toLowerCase(), pendingUser.name, otp);
@@ -194,10 +194,9 @@ exports.forgotPassword = async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.otp = otp;
-    user.otpExpire = Date.now() + 1.5 * 60 * 1000;
+    user.otpExpire = Date.now() + 10 * 60 * 1000; // ✅ 10 minutes
     await user.save();
 
-    // Forgot password email bhejo
     await sendForgotPasswordEmail(email.toLowerCase(), user.name, otp);
 
     res.json({
